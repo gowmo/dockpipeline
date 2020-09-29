@@ -1,0 +1,76 @@
+---
+
+- name: ansible-playbook to install the dependencies on AWS EC2, copy the files from jenkins, run the application.
+  hosts: ec2
+  become: yes
+
+  vars:
+    node_apps_location: /usr/local/opt/node
+
+  tasks:
+    - name : ping the server  
+      action: ping
+
+    - name: wget install
+      yum:  
+       name: wget
+       state: present
+       update_cache: true
+      become: true
+
+    - name: Install EPEL repo.
+      yum: name=epel-release state=latest
+
+    - name: Get node.js and npm.
+      shell: "curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -"
+      become: true
+      
+    - name: install node.js and npm 
+      shell: "sudo yum install -y nodejs"
+      become: true
+
+    - name: Install pm2
+      shell: "wget -qO- https://getpm2.com/install.sh | bash"
+      become: true
+
+    - name: Install apache check httpd
+      yum: name=httpd state=present enablerepo=epel
+
+    - name: Copy public folder to server.
+      copy: "src=public dest={{ node_apps_location }}"
+
+    - name: Copy src folder to server.
+      copy: "src=src dest={{ node_apps_location }}"
+
+    - name: Copy package.json to server.
+      copy: "src=package.json dest={{ node_apps_location }}"
+
+    - name: Copy package-lock.json file to server.
+      copy: "src=package-lock.json dest={{ node_apps_location }}" 
+
+    - name: Copy yarn.lock file to server.
+      copy: "src=yarn.lock dest={{ node_apps_location }}"
+
+    - name: Copy readme.md to server.
+      copy: "src=README.md dest={{ node_apps_location }}"
+
+    - name: Copy LICENSE to server.
+      copy: "src=LICENSE dest={{ node_apps_location }}"  
+
+    - name: update the node and npm modules
+      shell: "npm install -g npm@latest" 
+      args: 
+        chdir: /usr/local/opt/node
+      become: true
+
+    - name: Install the node module dependencies
+      shell: "npm install" 
+      args: 
+        chdir: /usr/local/opt/node
+      become: true
+
+    - name: Run the app using pm2.
+      shell: "pm2 start npm -- start"
+      args:
+        chdir: /usr/local/opt/node
+...
