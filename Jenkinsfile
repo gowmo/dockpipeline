@@ -20,7 +20,7 @@ try {
     node {
       sh 'npm install'
       sh 'npm install -g npm@latest'
-      sh 'docker build -f Dockerfile.prod -t moksgo91/emoji .
+      sh 'docker build -f Dockerfile.prod -t moksgo91/emoji .'
     }  
   }
 
