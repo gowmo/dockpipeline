@@ -18,19 +18,23 @@
        update_cache: true
       become: true
 
-    - name: Install AWS linux  extras
-      shell: "yum -y install amazon-linux-extras" 
-      become: true
+    - name: Install EPEL repo.
+      yum: name=epel-release state=latest
 
-    - name: Install Docker on AWS linux 
-      shell: "sudo amazon-linux-extras install docker" 
+    - name: Install docker
+      shell: "sudo yum -y install docker" 
       become: true
 
     - name: Start the Docker service 
       shell: "sudo service docker start" 
       become: true
 
-    - name: Start the Docker service 
+    - name:  Set permissions for docker.sock
+      shell: "sudo chmod 666 /var/run/docker.sock" 
+      become: true
+
+
+    - name: Set permissions for ec2-user  
       shell: "sudo usermod -a -G docker ec2-user" 
       become: true
 
