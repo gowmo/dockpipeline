@@ -1,11 +1,11 @@
 ---
 
-- name: ansible-playbook to install the dependencies on AWS EC2, copy the files from jenkins, run the application.
+- name: ansible playbook to install docker, pull a docker image and run it in amazon linux instance
   hosts: ec2
   become: yes
 
   vars:
-    node_apps_location: /usr/local/opt/node
+    docker_image_name: moksgo91/emoji:v1
 
   tasks:
     - name : ping the server  
@@ -18,59 +18,28 @@
        update_cache: true
       become: true
 
-    - name: Install EPEL repo.
-      yum: name=epel-release state=latest
-
-    - name: Get node.js and npm.
-      shell: "curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -"
-      become: true
-      
-    - name: install node.js and npm 
-      shell: "sudo yum install -y nodejs"
+    - name: Install Docker on AWS linux 
+      shell: "sudo amazon-linux-extras install docker" 
       become: true
 
-    - name: Install pm2
-      shell: "wget -qO- https://getpm2.com/install.sh | bash"
+    - name: Start the Docker service 
+      shell: "sudo service docker start" 
       become: true
 
-    - name: Install apache check httpd
-      yum: name=httpd state=present enablerepo=epel
-
-    - name: Copy public folder to server.
-      copy: "src=public dest={{ node_apps_location }}"
-
-    - name: Copy src folder to server.
-      copy: "src=src dest={{ node_apps_location }}"
-
-    - name: Copy package.json to server.
-      copy: "src=package.json dest={{ node_apps_location }}"
-
-    - name: Copy package-lock.json file to server.
-      copy: "src=package-lock.json dest={{ node_apps_location }}" 
-
-    - name: Copy yarn.lock file to server.
-      copy: "src=yarn.lock dest={{ node_apps_location }}"
-
-    - name: Copy readme.md to server.
-      copy: "src=README.md dest={{ node_apps_location }}"
-
-    - name: Copy LICENSE to server.
-      copy: "src=LICENSE dest={{ node_apps_location }}"  
-
-    - name: update the node and npm modules
-      shell: "npm install -g npm@latest" 
-      args: 
-        chdir: /usr/local/opt/node
+    - name: Start the Docker service 
+      shell: "sudo usermod -a -G docker ec2-user" 
       become: true
 
-    - name: Install the node module dependencies
-      shell: "npm install" 
-      args: 
-        chdir: /usr/local/opt/node
+    - name: set the docker to turn on automatically
+      shell: "sudo chkconfig docker on"
       become: true
 
-    - name: Run the app using pm2.
-      shell: "pm2 start npm -- start"
-      args:
-        chdir: /usr/local/opt/node
+    - name: pull the latest docker image which was uploaded in the previous step from Dockerhub
+      shell: "sudo docker pull {{ docker_image_name }}"
+      become: true
+
+    - name: Run the productionized container
+      shell: "sudo docker run -d -p 3000:3000 {{ docker_image_name }} --name emoji-search-app"
+      become: true
+
 ...
