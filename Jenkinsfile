@@ -7,6 +7,7 @@ String dockerimageversion = 'v2'
 
 // check out from git 
 try {
+
   stage('checkout') {
     node {
       cleanWs()
@@ -15,7 +16,7 @@ try {
   }
 
 // check out from git 
-try {
+
   stage('Build Docker Image') {
     node {
       sh 'npm install'
@@ -25,8 +26,6 @@ try {
   }
 
 
-// check out from git 
-try {
   stage('Push Docker Image') {
     node {
       sh 'docker push moksgo91/emoji:latest'
@@ -125,3 +124,4 @@ finally {
     currentBuild.result = 'SUCCESS'
   }
 }
+
