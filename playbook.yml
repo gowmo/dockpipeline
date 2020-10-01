@@ -5,7 +5,7 @@
   become: yes
 
   vars:
-    docker_image_name: moksgo91/emoji:latest
+    docker_image_name: moksgo91/emoji:v1
 
   tasks:
     - name : ping the server  

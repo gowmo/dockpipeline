@@ -15,24 +15,6 @@ try {
     }
   }
 
-// check out from git 
-
-  stage('Build Docker Image') {
-    node {
-      sh 'npm install'
-      sh 'npm install -g npm@latest'
-      sh 'docker build -f Dockerfile.prod -t moksgo91/emoji .'
-    }  
-  }
-
-
-  stage('Push Docker Image') {
-    node {
-      sh 'docker push moksgo91/emoji:latest'
-    }  
-  }
-
-
   // Run terraform init
   stage('init') {
     node {
