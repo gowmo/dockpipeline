@@ -18,6 +18,10 @@
        update_cache: true
       become: true
 
+    - name: Install AWS linux  extras
+      shell: "yum -y install amazon-linux-extras" 
+      become: true
+
     - name: Install Docker on AWS linux 
       shell: "sudo amazon-linux-extras install docker" 
       become: true
